@@ -42,6 +42,55 @@ class MLP(torch.nn.Module):
         return x
 
 
+class Encoder(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.network = torch.nn.Sequential(
+            torch.nn.Linear(in_features=784, out_features=1000, bias=True),
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=1000, out_features=1000, bias=True),
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=1000, out_features=2, bias=True),
+        )
+
+    def forward(self, x):
+        return self.network(x)
+
+
+class Decoder(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.network = torch.nn.Sequential(
+            torch.nn.Linear(in_features=2, out_features=1000, bias=True),
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=1000, out_features=1000, bias=True),
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=1000, out_features=784, bias=True),
+            torch.nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        return self.network(x)
+
+
+class Discriminator(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.network = torch.nn.Sequential(
+            torch.nn.Linear(in_features=2, out_features=1000, bias=True),
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=1000, out_features=1000, bias=True),
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=1000, out_features=1, bias=True),
+        )
+
+    def forward(self, x):
+        return self.network(x)
+
+
 class AutoEncoderMLP(torch.nn.Module):
 
     def __init__(
@@ -57,13 +106,13 @@ class AutoEncoderMLP(torch.nn.Module):
         super().__init__()
 
         # Network
-        self.encoder = MLP(input_size, enc_hidden_size, latent_size, activation_fn, keep_prob)
-        self.decoder = MLP(latent_size, dec_hidden_size, output_size, activation_fn, keep_prob)
+        self.encoder = Encoder()  #  MLP(input_size, enc_hidden_size, latent_size, activation_fn, keep_prob)
+        self.decoder = Decoder()  #  MLP(latent_size, dec_hidden_size, output_size, activation_fn, keep_prob)
 
     def forward(self, x):
         x = self.encoder(x)
         x = self.decoder(x)
-        x = torch.nn.Sigmoid()(x)
+        # x = torch.nn.Sigmoid()(x)
         return x
 
 

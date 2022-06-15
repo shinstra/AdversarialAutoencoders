@@ -12,6 +12,8 @@ from torchvision.transforms import PILToTensor
 
 from backend import *
 
+import matplotlib.pyplot as plt
+
 # ---------- #
 # Parameters #
 # ---------- #
@@ -19,8 +21,8 @@ from backend import *
 CACHE_PATH = os.path.join(os.path.split(__file__)[0], 'cache')
 MODEL = AutoEncoderMLP
 
-EPOCHS = 20
-BATCHSIZE = 32
+EPOCHS = 10
+BATCHSIZE = 64
 LOGGING_FREQ = 10
 
 # -------------- #
@@ -59,7 +61,7 @@ def main():
     model = AutoEncoderMLP(
         input_size=784,
         enc_hidden_size=[1000, 1000],
-        latent_size=10,
+        latent_size=2,
         dec_hidden_size=[1000, 1000],
         output_size=784,
         activation_fn=torch.nn.ReLU,
@@ -67,7 +69,7 @@ def main():
     )
     model.to(device)
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.SGD(params, lr=1e-3, momentum=0.9, weight_decay=0.0005)
+    optimizer = torch.optim.Adam(params, lr=1e-3)
     loss_fn = torch.nn.MSELoss()
 
     train_loss = []
@@ -101,18 +103,30 @@ def main():
 
             step += 1
 
+    # Save Model
+    torch.save(
+        {'model_state_dict': model.state_dict()},
+        os.path.join(save_folder, 'model.ckpt')
+    )
 
-
-
-
-
-
-
-
-            pass
-
+    imshow_batch(vbatch.view(BATCHSIZE, 28, 28))
+    plt.show()
+    imshow_batch(model(vbatch).view(BATCHSIZE, 28, 28))
+    plt.show()
 
     pass
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
